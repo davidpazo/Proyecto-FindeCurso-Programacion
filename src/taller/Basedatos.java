@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package taller;
 
 import java.awt.HeadlessException;
@@ -14,10 +9,7 @@ import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import javax.swing.JOptionPane;
 
-/**
- *
- * @author dpazolopez
- */
+/**** @author dpazolopez ****/
 public class Basedatos {
 
     static Connection connect = null;
@@ -27,8 +19,8 @@ public class Basedatos {
     protected static Connection conexion() {
 
         try {
-            Class.forName("org.sqlite.JDBC");
-            connect = DriverManager.getConnection("jdbc:sqlite:taller");
+            Class.forName("org.apache.derby.jdbc.ClientDriver");
+            connect = DriverManager.getConnection("jdbc:derby://localhost:1527/Base prog", "root", "root");
             System.out.println("Conectado");
         } catch (ClassNotFoundException | SQLException e) {
             System.out.println("erro de conexion" + e);
@@ -41,9 +33,9 @@ public class Basedatos {
             s = connect.createStatement();
 
             //consulta
-            String s="INSERT OR IGNORE INTO clientes(matricula,marca,modelo,kilometros,nome,dni,direccion,telefono) VALUES(" +matricula+","+modelo+","+ kilometros + "," + nome + "," + dni + "," + direccion + "," + telefono + "')";
+            s.executeUpdate("INSERT INTO APP.CLIENTES VALUES ('" + matricula + "','" + marca + "','" + modelo + "'," + kilometros + ",'" + nome + "','" + dni + "','" + direccion + "'," + telefono + ")");
             JOptionPane.showMessageDialog(null, "Insercion Realizada");
-            
+
         } catch (SQLIntegrityConstraintViolationException ex) {
             JOptionPane.showMessageDialog(null, "Error de insercion: " + ex);
         } catch (SQLException e) {
@@ -54,8 +46,8 @@ public class Basedatos {
     protected static void borrar() {
         try {
             s = connect.createStatement();
-            String con = JOptionPane.showInputDialog("Matricula: ");
-            s.executeUpdate("DELETE FROM CLIENTES WHERE MATRICULA= " + con);
+            String matricula = JOptionPane.showInputDialog("Matricula: ");
+            s.executeUpdate("DELETE FROM APP.CLIENTES WHERE MATRICULA= '" + matricula + "'");
             JOptionPane.showMessageDialog(null, "Vehiculo eliminado de la base de datos");
             s.close();
         } catch (SQLException | HeadlessException e) {
@@ -67,12 +59,20 @@ public class Basedatos {
     protected static void modificar() {
         try {
             s = connect.createStatement();
-            String con = JOptionPane.showInputDialog("Elije Codigo de alumno que deseas modificar: ");
-            String nom = JOptionPane.showInputDialog("Nuevo nombre: ");
-            s.executeQuery("UPDATE CLIENTES SET NOMBRE='" + nom + "'WHERE CODA= " + con);
+            String matricula = JOptionPane.showInputDialog("Elije la matricula que deseas modificar: ");
+            String kilometros = JOptionPane.showInputDialog("kilometros: ");
+            String nombre = JOptionPane.showInputDialog("Nuevo nombre: ");
+            String direccion = JOptionPane.showInputDialog("Nueva direccion: ");
+            String telefono =JOptionPane.showInputDialog("Nuevo telefono:");
+            
+
+            s.executeQuery("UPDATE APP.CLIENTES SET NOMBRE='" + nombre + "'WHERE MATRICULA= '" + matricula+"'");
+            s.executeQuery("UPDATE APP.CLIENTES SET DIRECCION='" + direccion + "'WHERE MATRICULA= '" + matricula+"'");
+            s.executeQuery("UPDATE APP.CLIENTES SET TELEFONO='" + telefono + "'WHERE MATRICULA= '" + matricula+"'");
+            s.executeQuery("UPDATE APP.CLIENTES SET DIRECCION='" + kilometros + "'WHERE MATRICULA= '" + matricula+"'");
             s.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error: " + e);
+            JOptionPane.showMessageDialog(null, "Error: \n" + e);
         }
     }
 }
